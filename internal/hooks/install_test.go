@@ -20,7 +20,7 @@ func TestInstallHookNewFile(t *testing.T) {
 	if !strings.HasPrefix(content, "#!/bin/sh\n") {
 		t.Error("missing shebang")
 	}
-	if !strings.Contains(content, "gitlore _post-commit &") {
+	if !strings.Contains(content, "gitlore _post-commit >/dev/null 2>&1 &") {
 		t.Error("missing gitlore command")
 	}
 	if !strings.Contains(content, markerBegin) || !strings.Contains(content, markerEnd) {
@@ -38,7 +38,7 @@ func TestInstallHookIdempotent(t *testing.T) {
 	data, _ := os.ReadFile(filepath.Join(dir, "post-commit"))
 	content := string(data)
 
-	count := strings.Count(content, "gitlore _post-commit &")
+	count := strings.Count(content, "gitlore _post-commit >/dev/null 2>&1 &")
 	if count != 1 {
 		t.Errorf("found %d instances of gitlore command, want 1", count)
 	}
@@ -57,7 +57,7 @@ func TestInstallHookPreservesExisting(t *testing.T) {
 	if !strings.Contains(content, "echo 'existing hook'") {
 		t.Error("existing hook content was lost")
 	}
-	if !strings.Contains(content, "gitlore _post-commit &") {
+	if !strings.Contains(content, "gitlore _post-commit >/dev/null 2>&1 &") {
 		t.Error("gitlore command not added")
 	}
 }

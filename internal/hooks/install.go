@@ -15,7 +15,7 @@ const (
 
 var postCommitSnippet = strings.Join([]string{
 	markerBegin,
-	"gitlore _post-commit &",
+	"gitlore _post-commit >/dev/null 2>&1 &",
 	markerEnd,
 }, "\n")
 
