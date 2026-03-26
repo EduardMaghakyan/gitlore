@@ -1,0 +1,28 @@
+version: 2
+
+builds:
+  - main: .
+    binary: gitlore
+    ldflags:
+      - -s -w -X github.com/eduardmaghakyan/gitlore/cmd.version={{.Version}}
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - format: tar.gz
+
+brews:
+  - repository:
+      owner: EduardMaghakyan
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: https://github.com/EduardMaghakyan/gitlore
+    description: Accumulated knowledge for AI-assisted codebases
+    license: MIT
+    test: |
+      system "#{bin}/gitlore", "version"
