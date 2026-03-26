@@ -1,5 +1,8 @@
 version: 2
 
+release:
+  mode: replace
+
 builds:
   - main: .
     binary: gitlore
