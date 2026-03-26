@@ -1,0 +1,1 @@
+[assisted] The developer wanted to push their gitlore repository to the remote without the pre-push hook causing an infinite loop. The fix made the hook skip pushing notes when it detected it was already in the process of doing so, breaking the recursion. No work was left incomplete; the push blocker was fully resolved.
