@@ -21,7 +21,7 @@ var postCommitSnippet = strings.Join([]string{
 
 var prePushSnippet = strings.Join([]string{
 	markerBegin,
-	`git push origin refs/notes/commits 2>/dev/null || true`,
+	`[ -z "$GITLORE_PUSHING_NOTES" ] && GITLORE_PUSHING_NOTES=1 git push origin refs/notes/commits 2>/dev/null || true`,
 	markerEnd,
 }, "\n")
 
