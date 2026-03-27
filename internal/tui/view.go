@@ -77,17 +77,63 @@ func (m Model) renderView() string {
 	}
 	b.WriteString(m.renderDivider("WHY", detailHelp))
 
-	// Bottom pane: note + files + diff (scrollable)
-	content := m.buildDetailContent()
-	lines := strings.Split(content, "\n")
+	// Bottom pane: fixed note + file tabs, then scrollable diff
+	c := m.commits[m.cursor]
 
-	// Apply scroll offset
-	if m.scrollOffset > 0 && m.scrollOffset < len(lines) {
-		lines = lines[m.scrollOffset:]
+	// Fixed: note
+	note := c.Note
+	for _, tag := range []string{"[agent-assisted]", "[assisted]"} {
+		if strings.HasPrefix(note, tag) {
+			note = styleTag.Render(tag) + note[len(tag):]
+			break
+		}
+	}
+	noteRendered := " " + wrapText(note, m.width-2) + "\n"
+	b.WriteString(noteRendered)
+	usedLines := strings.Count(noteRendered, "\n")
+
+	// Fixed: file tabs
+	if len(c.Files) > 0 {
+		b.WriteString("\n")
+		usedLines++
+		var fileParts []string
+		for i, f := range c.Files {
+			status := colorFileStatus(f.Status)
+			name := f.Path
+			if parts := strings.Split(name, "/"); len(parts) > 1 {
+				name = parts[len(parts)-1]
+			}
+			if i == m.fileCursor {
+				fileParts = append(fileParts, styleSHA.Render("▸")+" "+status+" "+styleFileSelected.Render(name))
+			} else {
+				fileParts = append(fileParts, "  "+status+" "+styleFileUnselected.Render(name))
+			}
+		}
+		b.WriteString(" " + strings.Join(fileParts, "   ") + "\n")
+		usedLines++
 	}
 
-	for i := 0; i < bottomHeight && i < len(lines); i++ {
-		b.WriteString(lines[i] + "\n")
+	// Scrollable: diff only
+	diffHeight := bottomHeight - usedLines - 1
+	if diffHeight < 1 {
+		diffHeight = 1
+	}
+
+	if len(c.Files) > 0 && m.fileCursor < len(c.Files) {
+		f := c.Files[m.fileCursor]
+		if f.Diff != "" {
+			b.WriteString("\n")
+			diffLines := strings.Split(colorizeDiff(f.Diff, m.width-1), "\n")
+
+			// Apply scroll offset to diff only
+			if m.scrollOffset > 0 && m.scrollOffset < len(diffLines) {
+				diffLines = diffLines[m.scrollOffset:]
+			}
+
+			for i := 0; i < diffHeight && i < len(diffLines); i++ {
+				b.WriteString(diffLines[i] + "\n")
+			}
+		}
 	}
 
 	return b.String()
@@ -114,52 +160,6 @@ func (m Model) commitRange(visible int) (int, int) {
 		end = len(m.commits)
 	}
 	return start, end
-}
-
-func (m Model) buildDetailContent() string {
-	c := m.commits[m.cursor]
-	var b strings.Builder
-
-	// Note
-	note := c.Note
-	for _, tag := range []string{"[agent-assisted]", "[assisted]"} {
-		if strings.HasPrefix(note, tag) {
-			note = styleTag.Render(tag) + note[len(tag):]
-			break
-		}
-	}
-	b.WriteString(" " + wrapText(note, m.width-2) + "\n")
-
-	// File list (inline, one line)
-	if len(c.Files) > 0 {
-		b.WriteString("\n")
-		var fileParts []string
-		for i, f := range c.Files {
-			status := colorFileStatus(f.Status)
-			name := f.Path
-			// Show just filename for long paths
-			if parts := strings.Split(name, "/"); len(parts) > 1 {
-				name = parts[len(parts)-1]
-			}
-			if i == m.fileCursor {
-				fileParts = append(fileParts, styleSHA.Render("▸")+" "+status+" "+styleFileSelected.Render(name))
-			} else {
-				fileParts = append(fileParts, "  "+status+" "+styleFileUnselected.Render(name))
-			}
-		}
-		b.WriteString(" " + strings.Join(fileParts, "   ") + "\n")
-
-		// Diff for selected file
-		if m.fileCursor < len(c.Files) {
-			f := c.Files[m.fileCursor]
-			if f.Diff != "" {
-				b.WriteString("\n")
-				b.WriteString(colorizeDiff(f.Diff, m.width-1))
-			}
-		}
-	}
-
-	return b.String()
 }
 
 func colorizeDiff(diff string, width int) string {
