@@ -46,7 +46,7 @@ func viaCLI(prompt, model string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	args := []string{"-p", "--output-format", "text"}
+	args := []string{"-p", "--no-session-persistence", "--output-format", "text"}
 	if model != "" {
 		args = append(args, "--model", model)
 	}
