@@ -1,0 +1,1 @@
+[agent-assisted] The developer wanted to prevent gitlore's Claude CLI invocations from creating persistent sessions that cluttered session management. The distillation calls now run in stateless mode, leaving no session artifacts behind after each prompt execution. No issues were left incomplete; the change was committed and pushed as intended.
