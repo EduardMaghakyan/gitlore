@@ -28,6 +28,15 @@ Three sentences: what was intended, what changed, what's left. Visible in `git l
 
 ## Install
 
+### Homebrew
+
+```bash
+brew tap EduardMaghakyan/homebrew-tap
+brew install gitlore
+```
+
+### Go
+
 ```bash
 go install github.com/eduardmaghakyan/gitlore@latest
 ```
