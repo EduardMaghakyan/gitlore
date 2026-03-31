@@ -1,0 +1,1 @@
+[agent-assisted] The developer wanted to make gitlore easier to install by documenting the Homebrew installation method in the README. The README now shows Homebrew as the primary install path, with the existing Go install method listed as a secondary option. Nothing was left incomplete.
